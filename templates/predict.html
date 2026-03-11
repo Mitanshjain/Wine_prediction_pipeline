@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}WineIQ — Predict Quality{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header { background: linear-gradient(135deg, #4a0e2c, #7b1d46); color: #fff; padding: 48px 0 36px; }
+  .page-header h1 { font-weight: 800; }
+
+  .form-card { border: none; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  .form-label { font-weight: 600; font-size: .875rem; color: #4a0e2c; }
+  .form-control { border-radius: 10px; border: 1.5px solid #e0ccd5; transition: border-color .2s; font-size: .9rem; }
+  .form-control:focus { border-color: #7b1d46; box-shadow: 0 0 0 3px rgba(123,29,70,.1); }
+  .form-text { font-size: .75rem; color: #999; }
+  .input-group-text { background: #f5e6ec; border: 1.5px solid #e0ccd5; border-right: none; border-radius: 10px 0 0 10px; color: #7b1d46; font-size:.85rem; }
+  .input-group .form-control { border-left: none; border-radius: 0 10px 10px 0; }
+
+  .btn-predict { background: linear-gradient(135deg,#7b1d46,#c9456a); color:#fff; border:none; border-radius:12px; padding:14px; font-size:1rem; font-weight:700; width:100%; transition:all .2s; }
+  .btn-predict:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(123,29,70,.35); color:#fff; }
+
+  /* Result card */
+  .result-panel { position: sticky; top: 80px; }
+  .result-empty { border: 2px dashed #e0ccd5; border-radius: 16px; padding: 48px 24px; text-align: center; color: #bbb; }
+  .score-ring { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(#d4a853 0%, #7b1d46 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; position: relative; }
+  .score-ring::before { content:''; position:absolute; width:110px; height:110px; background:#fff; border-radius:50%; }
+  .score-value { position:relative; font-size:2.4rem; font-weight:800; color:#4a0e2c; }
+  .label-badge { font-size:1.1rem; font-weight:700; padding: 8px 24px; border-radius: 20px; }
+  .label-Poor      { background:#fde8e8; color:#c0392b; }
+  .label-Average   { background:#fef3cd; color:#856404; }
+  .label-Good      { background:#d4edda; color:#155724; }
+  .label-Excellent { background:#cce5ff; color:#004085; }
+
+  .inputs-summary { background:#faf7f8; border-radius:12px; padding:16px; font-size:.82rem; }
+  .inputs-summary dt { color:#999; font-weight:500; }
+  .inputs-summary dd { color:#4a0e2c; font-weight:600; margin-bottom:6px; }
+
+  /* Section dividers */
+  .section-title { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#999; margin-bottom:12px; margin-top:20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-stars me-2"></i>Predict Wine Quality</h1>
+    <p class="mb-0 opacity-75">Enter the wine's chemical analysis to get an instant ML-powered quality score.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-4">
+
+    <!-- ── Form ─────────────────────────────────────────────────────────────── -->
+    <div class="col-lg-7">
+      <div class="card form-card p-4">
+        <form method="POST">
+
+          <p class="section-title">Acidity Properties</p>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Fixed Acidity</label>
+              <div class="input-group">
+                <span class="input-group-text">g/dm³</span>
+                <input type="number" step="0.01" name="fixed acidity" class="form-control"
+                       placeholder="e.g. 7.4" value="{{ result.inputs['fixed acidity'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 4.6 – 15.9</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Volatile Acidity</label>
+              <div class="input-group">
+                <span class="input-group-text">g/dm³</span>
+                <input type="number" step="0.001" name="volatile acidity" class="form-control"
+                       placeholder="e.g. 0.52" value="{{ result.inputs['volatile acidity'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 0.12 – 1.58</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Citric Acid</label>
+              <div class="input-group">
+                <span class="input-group-text">g/dm³</span>
+                <input type="number" step="0.001" name="citric acid" class="form-control"
+                       placeholder="e.g. 0.31" value="{{ result.inputs['citric acid'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 0.0 – 1.0</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">pH</label>
+              <div class="input-group">
+                <span class="input-group-text">pH</span>
+                <input type="number" step="0.01" name="pH" class="form-control"
+                       placeholder="e.g. 3.35" value="{{ result.inputs['pH'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 2.74 – 4.01</div>
+            </div>
+          </div>
+
+          <p class="section-title">Sugar & Salts</p>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Residual Sugar</label>
+              <div class="input-group">
+                <span class="input-group-text">g/dm³</span>
+                <input type="number" step="0.01" name="residual sugar" class="form-control"
+                       placeholder="e.g. 2.1" value="{{ result.inputs['residual sugar'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 1.2 – 15.5</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Chlorides</label>
+              <div class="input-group">
+                <span class="input-group-text">g/dm³</span>
+                <input type="number" step="0.001" name="chlorides" class="form-control"
+                       placeholder="e.g. 0.079" value="{{ result.inputs['chlorides'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 0.012 – 0.611</div>
+            </div>
+          </div>
+
+          <p class="section-title">Sulfur Dioxide</p>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Free Sulfur Dioxide</label>
+              <div class="input-group">
+                <span class="input-group-text">mg/dm³</span>
+                <input type="number" step="0.1" name="free sulfur dioxide" class="form-control"
+                       placeholder="e.g. 14" value="{{ result.inputs['free sulfur dioxide'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 1.0 – 72.0</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Total Sulfur Dioxide</label>
+              <div class="input-group">
+                <span class="input-group-text">mg/dm³</span>
+                <input type="number" step="0.1" name="total sulfur dioxide" class="form-control"
+                       placeholder="e.g. 46" value="{{ result.inputs['total sulfur dioxide'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 6.0 – 289.0</div>
+            </div>
+          </div>
+
+          <p class="section-title">Physical Properties</p>
+          <div class="row g-3">
+            <div class="col-sm-4">
+              <label class="form-label">Density</label>
+              <div class="input-group">
+                <span class="input-group-text">g/cm³</span>
+                <input type="number" step="0.0001" name="density" class="form-control"
+                       placeholder="e.g. 0.9968" value="{{ result.inputs['density'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 0.990 – 1.004</div>
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label">Sulphates</label>
+              <div class="input-group">
+                <span class="input-group-text">g/dm³</span>
+                <input type="number" step="0.01" name="sulphates" class="form-control"
+                       placeholder="e.g. 0.65" value="{{ result.inputs['sulphates'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 0.33 – 2.0</div>
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label">Alcohol</label>
+              <div class="input-group">
+                <span class="input-group-text">%vol</span>
+                <input type="number" step="0.01" name="alcohol" class="form-control"
+                       placeholder="e.g. 9.8" value="{{ result.inputs['alcohol'] if result else '' }}" required>
+              </div>
+              <div class="form-text">Range: 8.4 – 14.9</div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <button type="submit" class="btn-predict">
+              <i class="bi bi-stars me-2"></i>Predict Quality Score
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Result panel ──────────────────────────────────────────────────────── -->
+    <div class="col-lg-5">
+      <div class="result-panel">
+        {% if result %}
+        <div class="card form-card p-4 text-center">
+          <h5 class="fw-bold mb-3" style="color:#4a0e2c">Quality Prediction</h5>
+          <div class="score-ring mb-3">
+            <span class="score-value">{{ result.score }}</span>
+          </div>
+          <span class="label-badge label-{{ result.label }}">{{ result.label }}</span>
+          <p class="text-muted small mt-3 mb-3">Score out of 8 &nbsp;·&nbsp; Scale: Poor → Average → Good → Excellent</p>
+          <hr>
+          <p class="section-title text-start">Input Summary</p>
+          <dl class="inputs-summary row row-cols-2 g-1 text-start">
+            {% for k, v in result.inputs.items() %}
+            <div class="col">
+              <dt>{{ k }}</dt>
+              <dd>{{ v }}</dd>
+            </div>
+            {% endfor %}
+          </dl>
+          <a href="{{ url_for('history') }}" class="btn btn-sm mt-3" style="background:#f5e6ec;color:#7b1d46;border-radius:20px;font-weight:600">
+            <i class="bi bi-clock-history me-1"></i>View Full History
+          </a>
+        </div>
+        {% else %}
+        <div class="result-empty">
+          <div style="font-size:4rem;margin-bottom:16px">🍷</div>
+          <h5 style="color:#c9c0c4">Your result will appear here</h5>
+          <p class="small">Fill in the chemical properties and hit <strong>Predict Quality Score</strong></p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

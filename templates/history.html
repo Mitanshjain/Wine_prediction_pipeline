@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}WineIQ — Prediction History{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header { background: linear-gradient(135deg, #4a0e2c, #7b1d46); color:#fff; padding:48px 0 36px; }
+  .table-card { border:none; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,.07); overflow:hidden; }
+  .table thead th { background:#f5e6ec; color:#4a0e2c; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; border:none; padding:14px 12px; }
+  .table tbody td { vertical-align:middle; font-size:.88rem; padding:12px; }
+  .table tbody tr:hover { background:#faf7f8; }
+  .badge-Poor      { background:#fde8e8; color:#c0392b; }
+  .badge-Average   { background:#fef3cd; color:#856404; }
+  .badge-Good      { background:#d4edda; color:#155724; }
+  .badge-Excellent { background:#cce5ff; color:#004085; }
+  .score-pill { font-weight:700; font-size:.95rem; color:#7b1d46; }
+  .empty-state { text-align:center; padding:80px 20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1 style="font-weight:800"><i class="bi bi-clock-history me-2"></i>Prediction History</h1>
+    <p class="mb-0 opacity-75">All your wine quality analyses, newest first.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  {% if records %}
+  <div class="card table-card">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Score</th>
+            <th>Label</th>
+            <th>Alcohol</th>
+            <th>Fixed Acidity</th>
+            <th>Volatile Acidity</th>
+            <th>Sulphates</th>
+            <th>pH</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in records %}
+          <tr>
+            <td class="text-muted">{{ loop.index }}</td>
+            <td><span class="score-pill">{{ r.predicted_quality }}</span></td>
+            <td><span class="badge rounded-pill px-3 py-1 badge-{{ r.quality_label }}">{{ r.quality_label }}</span></td>
+            <td>{{ r.alcohol }}%</td>
+            <td>{{ r.fixed_acidity }}</td>
+            <td>{{ r.volatile_acidity }}</td>
+            <td>{{ r.sulphates }}</td>
+            <td>{{ r.pH }}</td>
+            <td class="text-muted small">{{ r.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="text-muted small mt-3">Showing {{ records|length }} prediction{{ 's' if records|length != 1 else '' }}.</p>
+
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:5rem;margin-bottom:20px">🍷</div>
+    <h4 style="color:#4a0e2c;font-weight:800">No predictions yet</h4>
+    <p class="text-muted mb-4">Make your first wine quality prediction to see results here.</p>
+    <a href="{{ url_for('predict') }}" class="btn px-5 py-2" style="background:linear-gradient(135deg,#7b1d46,#c9456a);color:#fff;border-radius:25px;font-weight:700">
+      <i class="bi bi-stars me-2"></i>Make First Prediction
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

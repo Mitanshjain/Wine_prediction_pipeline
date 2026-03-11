@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}WineIQ — Sign In{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { background: linear-gradient(135deg, #4a0e2c 0%, #7b1d46 60%, #2c0a1a 100%); min-height:100vh; }
+  .auth-card { border:none; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,.3); max-width:420px; margin:60px auto; }
+  .auth-logo { text-align:center; color:rgba(255,255,255,.9); margin-bottom:24px; }
+  .auth-logo h2 { font-weight:800; color:#d4a853; }
+  .form-label { font-weight:600; font-size:.875rem; color:#4a0e2c; }
+  .form-control { border-radius:10px; border:1.5px solid #e0ccd5; }
+  .form-control:focus { border-color:#7b1d46; box-shadow:0 0 0 3px rgba(123,29,70,.1); }
+  .btn-auth { background:linear-gradient(135deg,#7b1d46,#c9456a); color:#fff; border:none; border-radius:12px; padding:13px; font-weight:700; width:100%; }
+  .btn-auth:hover { opacity:.9; color:#fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="auth-logo pt-5">
+    <h2>🍷 WineIQ</h2>
+    <p>Welcome back</p>
+  </div>
+  <div class="card auth-card p-4 p-md-5">
+    <h4 class="fw-bold mb-4" style="color:#4a0e2c">Sign In</h4>
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Your password" required>
+      </div>
+      <button type="submit" class="btn btn-auth">Sign In</button>
+    </form>
+    <p class="text-center text-muted small mt-4 mb-0">
+      Don't have an account? <a href="{{ url_for('register') }}" style="color:#7b1d46;font-weight:600">Register Free</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

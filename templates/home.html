@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}WineIQ — Predict Wine Quality with AI{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero {
+    background: linear-gradient(135deg, #4a0e2c 0%, #7b1d46 50%, #2c0a1a 100%);
+    min-height: 88vh;
+    display: flex; align-items: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  }
+  .hero-content { position: relative; z-index: 2; }
+  .hero h1 { font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1.1; }
+  .hero h1 span { color: #d4a853; }
+  .hero p { font-size: 1.2rem; color: rgba(255,255,255,.8); max-width: 520px; }
+  .btn-hero-primary { background: #d4a853; color: #4a0e2c; font-weight: 700; border: none; padding: 14px 36px; border-radius: 30px; font-size: 1.1rem; transition: all .2s; }
+  .btn-hero-primary:hover { background: #e8bc60; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212,168,83,.4); }
+  .btn-hero-outline { border: 2px solid rgba(255,255,255,.5); color: #fff; background: transparent; padding: 12px 32px; border-radius: 30px; font-size: 1.1rem; font-weight: 600; transition: all .2s; }
+  .btn-hero-outline:hover { border-color: #d4a853; color: #d4a853; }
+  .wine-glass-emoji { font-size: 8rem; filter: drop-shadow(0 0 40px rgba(212,168,83,.3)); animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  /* Stats bar */
+  .stats-bar { background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+  .stat-item { text-align: center; padding: 28px 20px; }
+  .stat-num  { font-size: 2rem; font-weight: 800; color: #7b1d46; }
+  .stat-lbl  { color: #666; font-size: .9rem; }
+
+  /* Features */
+  .feature-card { border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,.06); transition: transform .2s; }
+  .feature-card:hover { transform: translateY(-6px); }
+  .feature-icon { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin: 0 auto 16px; }
+  .bg-wine { background: linear-gradient(135deg, #7b1d46, #c9456a); }
+
+  /* How it works */
+  .step-circle { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #7b1d46, #c9456a); color: #fff; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container hero-content">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="mb-3">
+          <span class="badge rounded-pill px-3 py-2" style="background:rgba(212,168,83,.2);color:#d4a853;font-size:.85rem">🤖 Powered by Random Forest ML</span>
+        </div>
+        <h1>Predict <span>Wine Quality</span><br>with AI Precision</h1>
+        <p class="mt-3 mb-4">Enter a wine's chemical properties and get an instant quality score from our model trained on 1,143 real wine samples.</p>
+        {% if session.get("user_id") %}
+          <a href="{{ url_for('predict') }}" class="btn btn-hero-primary me-3">
+            <i class="bi bi-stars me-2"></i>Make a Prediction
+          </a>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-hero-outline">
+            <i class="bi bi-grid me-2"></i>Dashboard
+          </a>
+        {% else %}
+          <a href="{{ url_for('register') }}" class="btn btn-hero-primary me-3">
+            Get Started Free
+          </a>
+          <a href="{{ url_for('login') }}" class="btn btn-hero-outline">
+            Sign In
+          </a>
+        {% endif %}
+      </div>
+      <div class="col-lg-5 text-center d-none d-lg-block">
+        <div class="wine-glass-emoji">🍷</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats bar -->
+<section class="stats-bar">
+  <div class="container">
+    <div class="row g-0">
+      <div class="col-6 col-md-3 border-end">
+        <div class="stat-item">
+          <div class="stat-num">1,143</div>
+          <div class="stat-lbl">Training Samples</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 border-end">
+        <div class="stat-item">
+          <div class="stat-num">11</div>
+          <div class="stat-lbl">Chemical Features</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 border-end">
+        <div class="stat-item">
+          <div class="stat-num">0.42</div>
+          <div class="stat-lbl">Avg. MAE (Score)</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-num">3–8</div>
+          <div class="stat-lbl">Quality Scale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="py-6" style="padding:80px 0">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-800" style="font-weight:800;color:#4a0e2c">Why WineIQ?</h2>
+      <p class="text-muted">Everything you need to analyse wine quality scientifically.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card feature-card p-4 h-100">
+          <div class="feature-icon bg-wine text-white">🤖</div>
+          <h5 class="text-center fw-bold">ML Predictions</h5>
+          <p class="text-muted text-center small">Random Forest model trained on 1,143 wine samples with 11 chemical features delivers accurate quality scores instantly.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card p-4 h-100">
+          <div class="feature-icon" style="background:linear-gradient(135deg,#d4a853,#e8bc60)">📊</div>
+          <h5 class="text-center fw-bold">Track History</h5>
+          <p class="text-muted text-center small">Every prediction is saved to your account. Review and compare wine analyses over time from your personal history log.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card p-4 h-100">
+          <div class="feature-icon" style="background:linear-gradient(135deg,#2ecc71,#27ae60)">🔒</div>
+          <h5 class="text-center fw-bold">Secure Accounts</h5>
+          <p class="text-muted text-center small">PBKDF2-SHA256 password hashing and parameterised SQL queries keep your data safe from the ground up.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section style="background:#f5e6ec;padding:80px 0">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 style="font-weight:800;color:#4a0e2c">How It Works</h2>
+    </div>
+    <div class="row g-4 text-center">
+      <div class="col-md-3">
+        <div class="step-circle">1</div>
+        <h6 class="fw-bold">Create Account</h6>
+        <p class="text-muted small">Sign up in seconds. No credit card required.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="step-circle">2</div>
+        <h6 class="fw-bold">Enter Wine Data</h6>
+        <p class="text-muted small">Input 11 chemical properties from the wine's lab analysis.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="step-circle">3</div>
+        <h6 class="fw-bold">Get Quality Score</h6>
+        <p class="text-muted small">Receive an instant score from 3–8 with a quality label.</p>
+      </div>
+      <div class="col-md-3">
+        <div class="step-circle">4</div>
+        <h6 class="fw-bold">Review History</h6>
+        <p class="text-muted small">Track all your predictions in your personal history log.</p>
+      </div>
+    </div>
+    {% if not session.get("user_id") %}
+    <div class="text-center mt-5">
+      <a href="{{ url_for('register') }}" class="btn btn-hero-primary">Start Predicting Now</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

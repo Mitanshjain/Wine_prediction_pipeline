@@ -1,0 +1,7 @@
+flask==3.0.3
+pymysql==1.1.1
+scikit-learn==1.5.1
+pandas==2.2.2
+joblib==1.4.2
+werkzeug==3.0.3
+numpy==1.26.4

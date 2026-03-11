@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}WineIQ — Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header { background: linear-gradient(135deg, #4a0e2c, #7b1d46); color:#fff; padding:48px 0 36px; }
+  .stat-card { border:none; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,.07); transition:transform .2s; }
+  .stat-card:hover { transform:translateY(-4px); }
+  .stat-icon { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+  .action-card { border:2px solid #f0e0e8; border-radius:16px; text-align:center; padding:28px 20px; text-decoration:none; color:#4a0e2c; transition:all .2s; display:block; }
+  .action-card:hover { border-color:#7b1d46; background:#f5e6ec; color:#4a0e2c; transform:translateY(-4px); }
+  .action-card .icon { font-size:2.2rem; margin-bottom:10px; }
+  .action-card h6 { font-weight:700; margin-bottom:4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1 class="fw-800" style="font-weight:800">
+      Welcome back, {{ session.get("user_name") }} 👋
+    </h1>
+    <p class="mb-0 opacity-75">Here's your WineIQ overview</p>
+  </div>
+</div>
+
+<div class="container py-5">
+
+  <!-- Stat cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-sm-6 col-lg-4">
+      <div class="card stat-card p-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-icon" style="background:#f5e6ec">🔬</div>
+          <div>
+            <div style="font-size:2rem;font-weight:800;color:#7b1d46">{{ total }}</div>
+            <div class="text-muted small">Total Predictions Made</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+      <div class="card stat-card p-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-icon" style="background:#fef3cd">⭐</div>
+          <div>
+            {% if latest %}
+              <div style="font-size:2rem;font-weight:800;color:#7b1d46">{{ latest.predicted_quality }}</div>
+              <div class="text-muted small">Latest Quality Score</div>
+            {% else %}
+              <div style="font-size:1.2rem;font-weight:600;color:#bbb">—</div>
+              <div class="text-muted small">No predictions yet</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
+      <div class="card stat-card p-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="stat-icon" style="background:#d4edda">🏷️</div>
+          <div>
+            {% if latest %}
+              <div style="font-size:1.5rem;font-weight:800;color:#7b1d46">{{ latest.quality_label }}</div>
+              <div class="text-muted small">Latest Label</div>
+            {% else %}
+              <div style="font-size:1.2rem;font-weight:600;color:#bbb">—</div>
+              <div class="text-muted small">No label yet</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <h5 class="fw-bold mb-3" style="color:#4a0e2c">Quick Actions</h5>
+  <div class="row g-3">
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('predict') }}" class="action-card">
+        <div class="icon">🍷</div>
+        <h6>New Prediction</h6>
+        <small class="text-muted">Analyse a wine</small>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('history') }}" class="action-card">
+        <div class="icon">📋</div>
+        <h6>My History</h6>
+        <small class="text-muted">View all results</small>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('about') }}" class="action-card">
+        <div class="icon">🤖</div>
+        <h6>About the Model</h6>
+        <small class="text-muted">How it works</small>
+      </a>
+    </div>
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('contact') }}" class="action-card">
+        <div class="icon">✉️</div>
+        <h6>Contact Us</h6>
+        <small class="text-muted">Send feedback</small>
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

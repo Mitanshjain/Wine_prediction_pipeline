@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}WineIQ — About{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header { background:linear-gradient(135deg,#4a0e2c,#7b1d46); color:#fff; padding:48px 0 36px; }
+  .info-card { border:none; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,.07); }
+  .feature-row { border-left:4px solid #7b1d46; padding:12px 16px; background:#faf7f8; border-radius:0 10px 10px 0; margin-bottom:12px; }
+  .imp-bar-bg { background:#f0e0e8; border-radius:20px; height:10px; }
+  .imp-bar { background:linear-gradient(90deg,#7b1d46,#c9456a); border-radius:20px; height:10px; transition:width .5s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1 style="font-weight:800">About WineIQ</h1>
+    <p class="mb-0 opacity-75">How the ML model works under the hood.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-4">
+
+    <div class="col-lg-6">
+      <div class="card info-card p-4 h-100">
+        <h5 class="fw-bold mb-3" style="color:#4a0e2c">🤖 The Model</h5>
+        <p class="text-muted">WineIQ uses a <strong>Random Forest Regressor</strong> wrapped in a Scikit-learn Pipeline with StandardScaler preprocessing.</p>
+        <div class="feature-row"><strong>Algorithm:</strong> Random Forest (200 trees, max depth 10)</div>
+        <div class="feature-row"><strong>Dataset:</strong> 1,143 red wine samples (WineQT)</div>
+        <div class="feature-row"><strong>Train/Test Split:</strong> 80% / 20%</div>
+        <div class="feature-row"><strong>MAE:</strong> ~0.42 quality points</div>
+        <div class="feature-row"><strong>Quality Scale:</strong> 3 (Poor) → 8 (Excellent)</div>
+        <p class="text-muted small mt-3">Why Random Forest? Wine quality depends on complex, non-linear interactions between chemical properties — RF captures these far better than Linear Regression.</p>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card info-card p-4 h-100">
+        <h5 class="fw-bold mb-3" style="color:#4a0e2c">📊 Feature Importances</h5>
+        <p class="text-muted small mb-3">How much each chemical property influences the quality score:</p>
+        {% set features = [
+          ("Alcohol",               30),
+          ("Volatile Acidity",      16),
+          ("Sulphates",             15),
+          ("Total SO₂",              7),
+          ("pH",                     5),
+          ("Chlorides",              5),
+          ("Density",                5),
+          ("Citric Acid",            4),
+          ("Residual Sugar",         4),
+          ("Fixed Acidity",          4),
+          ("Free SO₂",               4),
+        ] %}
+        {% for name, pct in features %}
+        <div class="mb-2">
+          <div class="d-flex justify-content-between mb-1">
+            <small class="fw-600" style="font-weight:600">{{ name }}</small>
+            <small class="text-muted">{{ pct }}%</small>
+          </div>
+          <div class="imp-bar-bg"><div class="imp-bar" style="width:{{ pct * 3 }}%"></div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card info-card p-4">
+        <h5 class="fw-bold mb-3" style="color:#4a0e2c">🔒 Security</h5>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <h6 class="fw-bold">Password Hashing</h6>
+            <p class="text-muted small">Werkzeug's PBKDF2-SHA256 with random salt. Passwords are never stored in plain text.</p>
+          </div>
+          <div class="col-md-4">
+            <h6 class="fw-bold">SQL Injection Prevention</h6>
+            <p class="text-muted small">All queries use parameterised placeholders (<code>%s</code>) — never string formatting.</p>
+          </div>
+          <div class="col-md-4">
+            <h6 class="fw-bold">Session Protection</h6>
+            <p class="text-muted small"><code>session.clear()</code> before each login prevents session fixation attacks.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
